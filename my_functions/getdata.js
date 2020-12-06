@@ -7,7 +7,7 @@ import fs from "fs"
     )
     let sheet
 
-    async.series([function setAuth(step) {
+    exports.handler = async.series([function setAuth(step) {
         const creds = require("./shripad-kelkar-a788f4c7e164.json");
         doc.useServiceAccountAuth(creds, step);
       }, function getInfoAndWorksheets(step) {
