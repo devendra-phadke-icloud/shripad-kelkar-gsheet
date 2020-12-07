@@ -36,7 +36,7 @@ import fs from "fs"
             })
             // Save rows as items in the YAML file
             for (let row of rows) {
-              console.log(row);
+              // console.log(row);
               fs.appendFile(
                 "./_data/posts.yml",
                 "- date: " +
