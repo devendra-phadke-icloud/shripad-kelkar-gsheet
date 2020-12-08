@@ -1,0 +1,26 @@
+---
+layout: default
+title: Google Sheets to Github Website - Links
+---
+
+<!-- Pulls from _data links -->
+{% assign links = site.data.links %}
+{% assign links = links | sort:"Name" %}
+
+<h3>Links</h3>
+<table width="100%">
+{% for link in links %}
+  <tr>
+    <td><strong>{{ link.name }}</strong></td>
+    <td width="25%">{{ link.url }}</td>
+  </tr>
+{% endfor %}
+</table>
+<p>Open this to download gsheet</p>
+<a href='https://phadked.github.io/pull-sheet/?org=phadked&repo=phadked.github.io&branch=main&token=0aa0357a91260609660266e79ac84269a8dfe198&key=1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s&worksheet=links' target='_blank'></a>
+<!-- <p align="center">
+  <a href="https://github.com/devendra-phadke-icloud/google-sheet-to-github-website">Github Repo</a> -
+  <a href="https://github.com/devendra-phadke-icloud/google-sheet-to-github-website/blob/master/_data/links.yaml">YAML</a> -
+  <a href="https://github.com/devendra-phadke-icloud/google-sheet-to-github-website/blob/master/pull-sheet/index.html">Pull Script</a> -
+  <a href="https://docs.google.com/spreadsheets/d/1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s/pubhtml">Google Sheet</a>
+</p> -->
