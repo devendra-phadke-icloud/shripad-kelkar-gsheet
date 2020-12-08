@@ -1,10 +1,97 @@
-<!doctype html>
+---
+layout: default
+---
+
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }}</title>
-  </head>
-  <body>
-    {{ content }}
-  </body>
+
+<head>
+  <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
+
+  {% include meta.html %}
+
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/main.css" />
+  <link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}"
+    href="{{ site.baseurl }}/feed.xml" />
+  <!-- Add icon library -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144"
+    href="{{ site.baseurl }}public/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+
+</head>
+
+<body>
+  <main class="container left-container">
+    <div class="row">
+      <!-- <section class="sidebar col-md-5 col-sm-12" style='background-image: url(/images/feature-san-fran.jpg);'> -->
+      <section class="sidebar col-md-5 col-sm-12"
+        style='background-image: url(/images/14572372_350444651964468_7244377848428868658_n.jpg);'>
+
+        <div class="site-info">
+          <div class="primary-info">
+            <h1>श्रीपाद गोपिनाथ केळकर</h1>
+            <p>माझे लिखाण व संस्कृत श्र्लोकांचा यथामति पद्यबद्ध मराठीतला स्वैर भावानुवाद...</p>
+          </div>
+
+          <div class="secondary-info">
+            <p>
+              <a class="btn btn-primary" href="https://www.facebook.com/shripadgopinath.kelkar/"
+                target="_blank">Facebook</a>
+            </p>
+          </div>
+
+        </div>
+      </section><!-- end sidebar -->
+
+
+      <div class="col-md-7 col-sm-12 col-md-offset-5 main-content">
+        <div class="sub-nav">
+          <a href="{{ site.baseurl }}/" class="select-posts {% if page.url == '/' %} active{% endif %}">Blog</a>
+          <a href="{{ site.baseurl }}/categories"
+            class="select-posts {% if page.url == '/categories/' %} active{% endif %}"">Categories</a>
+                    <a href=" {{ site.baseurl }}/about"
+            class="select-categories {% if page.url == '/about/' %} active{% endif %}"">About</a>
+                    <a href=" {{ site.baseurl }}/video"
+            class="select-categories {% if page.url == '/video/' %} active{% endif %}"">Video</a>
+                    <a href=" {{ site.baseurl }}/contact"
+            class="select-categories {% if page.url == '/contact/' %} active{% endif %}"">Contact</a>
+                </div>
+
+                <div class=" home-page-posts animated fadeIn ">
+
+                        {{ content }}
+
+                </div><!-- Home page posts -->
+
+                <footer class=" split-footer">
+            <a href="{{ site.baseurl }}/">Blog</a>
+            <i class="link-spacer"></i>
+            <a href="{{ site.baseurl }}/categories">Categories</a>
+            <i class="link-spacer"></i>
+            <a href="{{ site.baseurl }}/about">About</a>
+            <i class="link-spacer"></i>
+            <a href="{{ site.baseurl }}/video">Video</a>
+            <i class="link-spacer"></i>
+            <a href="{{ site.baseurl }}/contact">Contact</a>
+            </footer>
+        </div><!-- main content -->
+      </div>
+      <!--/row -->
+
+  </main>
+
+  <div class="wrapper-footer">
+    <div class="container">
+      <footer class="footer">
+        {% include svg-icons.html %}
+      </footer>
+    </div>
+  </div>
+
+  {% include analytics.html %}
+</body>
+
 </html>

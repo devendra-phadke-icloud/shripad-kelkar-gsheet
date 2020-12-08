@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "getdata": "babel-node getdata.js",
+    "start": "babel-node getdata.js; bundle exec jekyll serve",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +16,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "google-spreadsheet": "^2.0.6"
+    "google-spreadsheet": "^3.0.14",
+    "luxon": "^1.25.0",
+    "uuid": "^8.3.1"
   }
 }

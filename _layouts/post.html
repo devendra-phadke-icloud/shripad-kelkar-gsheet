@@ -1,0 +1,24 @@
+---
+layout: default
+---
+
+<article class="post">
+  <div class="post-preview col-xs-10  no-gutter">
+      <h2><a href="/demo/writer/jekyll/v1-4/stop-thinking-and-start-doing"></a>{{ page.title }}</a></h2>
+      <br/>
+      <p>{{ page.source }}</p>
+      <p>{{ content }}</p>
+      <p class="meta">
+        Written on <i class="fa fa-bookmark"></i> {{ page.date | date: "%B %e, %Y" }}
+      </p>
+  </div>
+
+
+
+  <!-- <div class=" col-xs-2  no-gutter">
+      <img src="/demo/writer/jekyll/v1-4/img/fred.jpg" class="user-icon user-1" alt="user-image">
+  </div> -->
+
+  {% include disqus.html %}
+
+</article>
