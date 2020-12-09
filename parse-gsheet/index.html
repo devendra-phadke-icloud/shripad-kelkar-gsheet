@@ -10,14 +10,10 @@ title: Update Spreadsheet
 <script type="text/javascript">
     var spData = null;
     var headerRow = [];
+    var fileArray = [];
     var API_URL = 'https://api.github.com';
-    // var user = 'phadked';
-    //     var repo = 'phadked.github.io';
-    //     var authorization = 'token ' + '9de6239f860957599556764ae835102d5737ff15';
-    //     var repoPath = "/repos/" + user + "/" + repo;
-
     var options = {
-        token: '9de6239f860957599556764ae835102d5737ff15',
+        token: location.search.substring(1),
         user: 'phadked',
         repo: 'phadked.github.io'
     }
@@ -33,15 +29,22 @@ title: Update Spreadsheet
         td.append(val);
         return td;
     }
-    function saveMarkup(rowData) {
+    async function saveMarkup(rowData) {
         var md = "---\nlayout: post\n";
+        var dateValue = '';
         for (var i = 0; i < rowData.length - 1; i++) {
-            md = md + headerRow[i].toLowerCase() + ": \"" + rowData[i] + "\"\n"
+            md = md + headerRow[i].toLowerCase() + ": \"" + rowData[i] + "\"\n";
+            dateValue = headerRow[i] == 'Date' ? rowData[i] : dateValue;
         }
+        dateValue = new Date(dateValue.replaceAll('-', ' ')).toISOString().split('T')[0];
         md = md + "---\n\n" +
             rowData[rowData.length - 1] +
             "\n";
-        console.log(md);
+        var path = '_posts/' + dateValue + '-' + (new Date()).getTime() + Math.floor(Math.random() * (999 - 100 + 1) + 100) + '.md';
+        console.log(md, path);
+        fileArray.push({ md: md, path: path });
+        // var addFileResponse = await addFile(path, btoa(md));
+        // console.log('addFileResponse', addFileResponse);
     }
     function drawRow(table, rowData) {
         if (rowData == null) return null;
@@ -95,17 +98,35 @@ title: Update Spreadsheet
         });
     };
 
-    function getPosts(callback) {
+    async function getPosts(callback) {
         var command = '/repos/' + options.user + '/' + options.repo + '/contents/_posts';
-
-        _request("GET", command, null, function (err, res) {
-            console.log(err, res);
-            if (!err)
-                callback(res);
-            else
-                callback(null);
-        });
+        return await _requestAsync("GET", command);
     };
+
+    async function _requestAsync(method, path, data) {
+        function getURL() {
+            var url = path.indexOf('//') >= 0 ? path : API_URL + path;
+            // return url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
+            return url;
+        }
+
+        console.log('_requestAsync', method, getURL(), data);
+        // read github user
+        let response = await fetch(getURL(), {
+            method: method,
+            body: JSON.stringify(data),
+            headers: {
+                "Authorization": "token " + options.token,
+                'Accept': 'application/vnd.github.v3+json'
+            },
+        });
+        let responseJson = await response.json();
+
+        // wait 1 second
+        await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+
+        return responseJson;
+    }
 
     function _request(method, path, data, cb, raw, sync) {
         function getURL() {
@@ -153,37 +174,38 @@ title: Update Spreadsheet
         }, true, false);
     };
 
-    // Remove a file
-    // -------
-
-    function removeFile(branch, path, sha, cb) {
-        getSha(branch, path, function (err, sha) {
-            if (err) return cb(err);
-            console.log('gotsha', sha);
-            console.log('removeFile', repoPath + "/contents/" + path);
-            _request("DELETE", repoPath + "/contents/" + path, {
-                message: path + " is removed",
-                sha: sha,
-                branch: branch
-            }, cb);
-        });
+    async function addFile(path, content) {
+        console.log('addFile', repoPath + "/contents/" + path, content);
+        return await _requestAsync("PUT", repoPath + "/contents/" + path, { 'message': 'Commiting addFile ' + path, content: content });
     };
 
-    function deletePosts(posts) {
+    async function removeFile(path, sha) {
+        console.log('removeFile', repoPath + "/contents/" + path);
+        return await _requestAsync("DELETE", repoPath + "/contents/" + path, { 'message': 'Commiting removefile ' + path, sha: sha });
+    };
+
+    async function deletePosts(posts) {
         console.log('inside deletePosts');
         console.log(posts);
         if (posts)
             for (let post of posts) {
-                removeFile('main', post.path, post.sha, function (e) {
-                    console.log(e);
-                })
+                var removeFileResponse = await removeFile(post.path, post.sha);
+                console.log('removeFileResponse', removeFileResponse);
             }
     }
 
-    function connectGithub() {
+    async function connectGithub() {
         console.log('Inside connectGithub');
-        // getGitUser(options.user);
-        getPosts(deletePosts);
+        var posts = await getPosts();
+        if (Array.isArray(posts)) {
+            await deletePosts(posts);
+        } else {
+            for (let file of fileArray) {
+                console.log(file);
+                var addFileResponse = await addFile(file.path, file.md);
+            //     console.log('addFileResponse', addFileResponse);
+            }
+        }
     }
     $(document).ready(function () {
         readData($("#data"));
@@ -193,20 +215,10 @@ title: Update Spreadsheet
 </script>
 <script
     src="https://spreadsheets.google.com/feeds/cells/1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s/1/public/values?alt=json-in-script&callback=doData"></script>
-<!-- <style type="text/css">
-  table {border-collapse: collapse; width: 100%;}
-  th, td {border: thin solid black; padding: 3px;}
-  tr.head th, tr.head td {background-color: #EDEDED; border-bottom: 4px double black;}
-  span.linetitle {font-weight: bold;}
-  div.lineclass {font-style: italic;}
-  .title, .result {width: 80%;}
-  .notes {width: 15%;}
-  h1 {text-align: center;}
-  body {margin: 12px; font-size: 12px;}
-</style> -->
 <style type="text/css" media="print">
     form {
         display: none;
     }
 </style>
-<div id="data"></div>/>
+<div id="data"></div>
+{{page.url}}
