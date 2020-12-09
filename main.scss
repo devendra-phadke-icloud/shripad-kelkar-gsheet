@@ -8499,3 +8499,12 @@ a {
 
 @import "highlights";
 @import "svg-icons";
+
+
+table {border-collapse: collapse; width: 100%;}
+th, td {border: thin solid black; padding: 3px;}
+tr.head th, tr.head td {background-color: #EDEDED; border-bottom: 4px double black;}
+span.linetitle {font-weight: bold;}
+div.lineclass {font-style: italic;}
+.title, .result {width: 80%;}
+.notes {width: 15%;}
