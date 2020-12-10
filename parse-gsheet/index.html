@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Update Spreadsheet
+status: Done
 ---
 
 <!--These are JavaScript Libraries-->
@@ -41,10 +42,7 @@ title: Update Spreadsheet
             rowData[rowData.length - 1] +
             "\n";
         var path = '_posts/' + dateValue + '-' + (new Date()).getTime() + Math.floor(Math.random() * (999 - 100 + 1) + 100) + '.md';
-        console.log(md, path);
-        fileArray.push({ md: md, path: path });
-        // var addFileResponse = await addFile(path, btoa(md));
-        // console.log('addFileResponse', addFileResponse);
+        fileArray.push({ md: btoa(unescape(encodeURIComponent(md))), path: path });
     }
     function drawRow(table, rowData) {
         if (rowData == null) return null;
@@ -76,7 +74,7 @@ title: Update Spreadsheet
             if (cell.col == 1) {
                 if (rowData.length > 0 && headerRow.length == 0) {
                     headerRow = [...rowData];
-                    console.log('headerRow', headerRow);
+                    // console.log('headerRow', headerRow);
                     rowData = [];
                 }
                 drawRow(table, rowData);
@@ -110,7 +108,7 @@ title: Update Spreadsheet
             return url;
         }
 
-        console.log('_requestAsync', method, getURL(), data);
+        // console.log('_requestAsync', method, getURL(), data);
         // read github user
         let response = await fetch(getURL(), {
             method: method,
@@ -175,37 +173,40 @@ title: Update Spreadsheet
     };
 
     async function addFile(path, content) {
-        console.log('addFile', repoPath + "/contents/" + path, content);
         return await _requestAsync("PUT", repoPath + "/contents/" + path, { 'message': 'Commiting addFile ' + path, content: content });
     };
 
     async function removeFile(path, sha) {
-        console.log('removeFile', repoPath + "/contents/" + path);
+        // console.log('removeFile', repoPath + "/contents/" + path);
         return await _requestAsync("DELETE", repoPath + "/contents/" + path, { 'message': 'Commiting removefile ' + path, sha: sha });
     };
 
     async function deletePosts(posts) {
-        console.log('inside deletePosts');
-        console.log(posts);
+        // console.log('inside deletePosts');
         if (posts)
             for (let post of posts) {
-                var removeFileResponse = await removeFile(post.path, post.sha);
-                console.log('removeFileResponse', removeFileResponse);
+                if (post.path != '_posts/DO-NOT-DELETE-ME') {
+                    var removeFileResponse = await removeFile(post.path, post.sha);
+                    document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '.';
+                    // console.log('removeFileResponse', removeFileResponse);
+                }
             }
     }
 
     async function connectGithub() {
-        console.log('Inside connectGithub');
+        document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Getting new posts from Google Sheets.';
         var posts = await getPosts();
         if (Array.isArray(posts)) {
+            document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Found ' + posts.length + ' posts from Google Sheets.';
+            document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Deleting old posts.';
             await deletePosts(posts);
-        } else {
-            for (let file of fileArray) {
-                console.log(file);
-                var addFileResponse = await addFile(file.path, file.md);
-            //     console.log('addFileResponse', addFileResponse);
-            }
         }
+        document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Adding new posts...';
+        for (let file of fileArray) {
+            await addFile(file.path, file.md);
+            document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '.';
+        }
+        document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Done. You may close this page/tab now.';
     }
     $(document).ready(function () {
         readData($("#data"));
@@ -215,10 +216,5 @@ title: Update Spreadsheet
 </script>
 <script
     src="https://spreadsheets.google.com/feeds/cells/1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s/1/public/values?alt=json-in-script&callback=doData"></script>
-<style type="text/css" media="print">
-    form {
-        display: none;
-    }
-</style>
+<div id="status" style="font-size: large;">Starting upload. Do not close this browser/tab.</div>
 <div id="data"></div>
-{{page.url}}
