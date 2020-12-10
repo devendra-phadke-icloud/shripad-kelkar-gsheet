@@ -201,7 +201,7 @@ status: Done
             document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Deleting old posts.';
             await deletePosts(posts);
         }
-        document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Adding new posts...';
+        document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Adding new posts.';
         for (let file of fileArray) {
             await addFile(file.path, file.md);
             document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '.';
