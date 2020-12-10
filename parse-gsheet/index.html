@@ -4,11 +4,11 @@ title: Update Spreadsheet
 status: Done
 ---
 
-<!--These are JavaScript Libraries-->
-<script type="text/javascript"
-    src="https://contrafabulists-toolbox.github.io/master/javascript/jquery-latest.min.js"></script>
-
 <script type="text/javascript">
+
+    // Global Variables
+    // -------
+
     var spData = null;
     var headerRow = [];
     var fileArray = [];
@@ -20,16 +20,20 @@ status: Done
     }
     var repoPath = '/repos/' + options.user + '/' + options.repo;
 
+    // Sheet functions
+    // -------
+
     function doData(json) {
         spData = json.feed.entry;
     }
 
     function drawCell(tr, val) {
-        var td = $("<td/>");
+        var td = document.createElement("td");
         tr.append(td);
         td.append(val);
         return td;
     }
+
     async function saveMarkup(rowData) {
         var md = "---\nlayout: post\n";
         var dateValue = '';
@@ -44,12 +48,13 @@ status: Done
         var path = '_posts/' + dateValue + '-' + (new Date()).getTime() + Math.floor(Math.random() * (999 - 100 + 1) + 100) + '.md';
         fileArray.push({ md: btoa(unescape(encodeURIComponent(md))), path: path });
     }
+
     function drawRow(table, rowData) {
         if (rowData == null) return null;
         if (rowData.length == 0) return null;
         // console.log('drawRow', rowData);
         saveMarkup(rowData);
-        var tr = $("<tr/>");
+        var tr = document.createElement("tr");
         table.append(tr);
         for (var c = 0; c < rowData.length; c++) {
             drawCell(tr, rowData[c]);
@@ -58,7 +63,7 @@ status: Done
     }
 
     function drawTable(parent) {
-        var table = $("<table/>");
+        var table = document.createElement("table");
         parent.append(table);
         return table;
     }
@@ -85,16 +90,8 @@ status: Done
         drawRow(table, rowData);
     }
 
-    // Show user information
+    // Git functions
     // -------
-
-    function getGitUser(username) {
-        var command = username ? "/users/" + username : "/user";
-
-        _request("GET", command, null, function (err, res) {
-            console.log(err, res);
-        });
-    };
 
     async function getPosts(callback) {
         var command = '/repos/' + options.user + '/' + options.repo + '/contents/_posts';
@@ -125,52 +122,6 @@ status: Done
 
         return responseJson;
     }
-
-    function _request(method, path, data, cb, raw, sync) {
-        function getURL() {
-            var url = path.indexOf('//') >= 0 ? path : API_URL + path;
-            return url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
-        }
-
-        var xhr = new XMLHttpRequest();
-        if (!raw) { xhr.dataType = "json"; }
-
-        console.log('xhr', method, getURL(), !sync);
-
-        xhr.open(method, getURL(), !sync);
-        if (!sync) {
-            xhr.onreadystatechange = function () {
-                if (this.readyState == 4) {
-                    if (this.status >= 200 && this.status < 300 || this.status === 304) {
-                        cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true, this);
-                    } else {
-                        cb({ path: path, request: this, error: this.status });
-                    }
-                }
-            };
-        }
-        xhr.setRequestHeader('Accept', 'application/vnd.github.v3.raw+json');
-        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-        if ((options.token) || (options.username && options.password)) {
-            var authorization = options.token ? 'token ' + options.token : 'Basic ' + btoa(options.username + ':' + options.password);
-            xhr.setRequestHeader('Authorization', authorization);
-        }
-        if (data) {
-            console.log('data', data);
-            xhr.send(JSON.stringify(data));
-        }
-        else
-            xhr.send();
-        if (sync) return xhr.response;
-    }
-
-    function getSha(branch, path, cb) {
-        if (!path || path === "") return that.getRef("heads/" + branch, cb);
-        _request("GET", repoPath + "/contents/" + path, { ref: branch }, function (err, pathContent) {
-            if (err) return cb(err);
-            cb(null, pathContent.sha);
-        }, true, false);
-    };
 
     async function addFile(path, content) {
         return await _requestAsync("PUT", repoPath + "/contents/" + path, { 'message': 'Commiting addFile ' + path, content: content });
@@ -208,13 +159,19 @@ status: Done
         }
         document.querySelector('#status').innerHTML = document.querySelector('#status').innerHTML + '<br/>Done. You may close this page/tab now.';
     }
-    $(document).ready(function () {
-        readData($("#data"));
-        connectGithub();
-    });
+
+    document.onreadystatechange = function () {
+        if (document.readyState == "complete") {
+            // document is ready. Do your stuff here
+            // console.log('onreadystatechange document is ready. I can sleep now');
+            readData(document.querySelector("#data"));
+            connectGithub();
+        }
+    }
 
 </script>
 <script
-    src="https://spreadsheets.google.com/feeds/cells/1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s/1/public/values?alt=json-in-script&callback=doData"></script>
+    src="https://spreadsheets.google.com/feeds/cells/1AD-CEIVKCbYeM3ep-fcZuksGitNJOTGx6wlU1tSzf-s/1/public/values?alt=json-in-script&callback=doData">
+    </script>
 <div id="status" style="font-size: large;">Starting upload. Do not close this browser/tab.</div>
 <div id="data"></div>
